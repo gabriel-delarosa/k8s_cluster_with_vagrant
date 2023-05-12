@@ -83,6 +83,9 @@ Vagrant.configure("2") do |config|
         master.vm.network :private_network, ip: IP_NW + "#{MASTER_IP_START + i}"
         master.vm.network "forwarded_port", guest: 22, host: "2710"
 
+        #adding port 80 to test nginx
+        master.vm.network "forwarded_port", guest: 80, host: "30007"
+
         master.vm.provision "setup-prereqs", :type => "shell", :path => "resources/pre-reqs.sh" do |k|
           k.args = [K8S_VERSION]
         end
@@ -106,12 +109,17 @@ Vagrant.configure("2") do |config|
     config.vm.define "node0#{i}" do |node|
         node.vm.provider "virtualbox" do |vb|
             vb.name = "node0#{i}"
-            vb.memory = 1048
+            vb.memory = 2048
             vb.cpus = 2
         end
         node.vm.hostname = "node0#{i}"
         node.vm.network :private_network, ip: IP_NW + "#{NODE_IP_START + i}"
-                node.vm.network "forwarded_port", guest: 22, host: "#{2720 + i}"
+        node.vm.network "forwarded_port", guest: 22, host: "#{2720 + i}"
+
+        #adding port 80 to test nginx
+        node.vm.network "forwarded_port", guest: 80, host: "#{30080 + i}"
+        node.vm.network "forwarded_port", guest: 9898, host: "#{9898 + i}"
+        node.vm.network "forwarded_port", guest: 9999, host: "#{9999 + i}"
 
         node.vm.provision "setup-prereqs", :type => "shell", :path => "resources/pre-reqs.sh" do |k|
           k.args = [K8S_VERSION]
